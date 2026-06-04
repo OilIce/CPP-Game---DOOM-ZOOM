@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="DOOMZOOM/DOOMZOOM.vcxproj" Id="09c7c526-434f-420c-8083-5e3d33f52424" />
+</Solution>
