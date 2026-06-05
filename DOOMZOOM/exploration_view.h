@@ -63,18 +63,18 @@ class ExplorationView {
 
      void moveEntities() {
          std::uniform_int_distribution<int> dir_dist(0, 3);
-         std::discrete_distribution<int> is_moving({ 25, 75 });
+         std::discrete_distribution<int> is_moving({ 75, 25 });
          std::mt19937 engine(std::random_device{}());
-         for (auto& entity : entities_) {
-             if (!is_moving(engine))
-                 continue;
-             int dir = dir_dist(engine);
-             int new_x = entity.x + kDirX[dir];
-             int new_y = entity.y + kDirY[dir];
-             if (map_.isWalkable(new_x, new_y)) {
-                 if (new_x != player_.x() || new_y != player_.y()) {
-                     entity.x = new_x;
-                     entity.y = new_y;
+         for (auto& entity : entities_) { 
+             if (is_moving(engine)) {
+                     int dir = dir_dist(engine);
+                 int new_x = entity.x + kDirX[dir];
+                 int new_y = entity.y + kDirY[dir];
+                 if (map_.isWalkable(new_x, new_y)) {
+                     if (new_x != player_.x() || new_y != player_.y()) {
+                         entity.x = new_x;
+                         entity.y = new_y;
+                     }
                  }
              }
          }
@@ -132,10 +132,6 @@ class ExplorationView {
     auto global_handler = CatchEvent([this](Event event) {
       if (event.is_character()) {
         char key = std::tolower(event.character()[0]);
-        //if (key == 'q') {
-        //    screen.ExitLoopClosure()(); 
-        //    return true;
-        //}
 
         auto it =  std::find(kDirChar.begin(), kDirChar.end(), key);
         if (it == kDirChar.end()) { return false; } 
@@ -177,8 +173,8 @@ class ExplorationView {
       return vbox({
           text("Waiting at zoo") | bold,
           separator(),
-          reserve_menu->Render() | border,
-      });
+          reserve_menu->Render() | size(HEIGHT, LESS_THAN, 4) | vscroll_indicator | border,
+      }) ;
     });
 
     auto selected_animal = Renderer([=] {

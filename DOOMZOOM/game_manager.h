@@ -6,7 +6,7 @@ public:
 	explicit GameManager(ScreenInteractive& screen) : map_(),
 		player_(map_, kPlayerBaseY, kPlayerBaseX),
 		camera_(map_, player_),
-		active_({ std::make_shared<Animal>(0), std::make_shared<Animal>(1) }),
+		active_({ std::make_shared<Animal>(16), std::make_shared<Animal>(17) }),
 		in_reserve_({}),
 		screen_(screen) {
 		map_.loadFromFile(kMapInfo);
@@ -92,9 +92,8 @@ private:
 		collision_entity_index_ = entity_index;
 
 		
-		Team enemy_team;
-		enemy_team.push_back(std::make_shared<Animal>(next_enemy_idx));
-		enemy_team.push_back(std::make_shared<Animal>(next_enemy_idx + 1));
+		Team enemy_team({ std::make_shared<Animal>(next_enemy_idx),
+								std::make_shared<Animal>(next_enemy_idx + 1) });
 
 		Team player_team = active_.team(); 
 
@@ -109,8 +108,11 @@ private:
 		for (auto& a : in_reserve_.team()) a->heal();
 
 		if (victory) {
-			in_reserve_.team().push_back(std::make_shared<Animal>(next_enemy_idx));
-			in_reserve_.team().push_back(std::make_shared<Animal>(next_enemy_idx + 1));
+
+			Inventory enemy_team({ std::make_shared<Animal>(next_enemy_idx),
+								std::make_shared<Animal>(next_enemy_idx + 1) });
+			enemy_team.transferTo(in_reserve_);
+			enemy_team.transferTo(in_reserve_);
 			next_enemy_idx += 2;
 			entities_.erase(entities_.begin() + collision_entity_index_);
 		} else {

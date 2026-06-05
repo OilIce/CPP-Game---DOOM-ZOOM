@@ -14,8 +14,8 @@ using Team = std::vector<std::shared_ptr<Animal>>;
 class BattleView {
  public:
   BattleView(Team player, Team enemy, ScreenInteractive& screen)
-      : player_team_(std::move(player)),
-        enemy_team_(std::move(enemy)),
+      : player_team_(player),
+        enemy_team_(enemy),
         screen_(screen),
         rng_(std::random_device{}()) {
     buildTurnOrder();
