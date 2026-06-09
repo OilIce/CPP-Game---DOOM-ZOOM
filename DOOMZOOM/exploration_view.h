@@ -9,7 +9,7 @@
 
 using namespace ftxui;
 
-struct MovingEntity {
+struct Entity {
     int x;
     int y;
 };
@@ -22,18 +22,20 @@ class ExplorationView {
   Inventory& in_reserve_;
 
   Component main_component_;
-  std::vector<MovingEntity>& entities_;
+  std::vector<Entity>& entities_;
+  std::vector<Entity>& flowers_;
   std::function<void(int)> collision_;
  public:
      ExplorationView(Map& map, Player& player, Camera& camera,
          Inventory& active, Inventory& in_reserve,
-         std::vector<MovingEntity>& entities)
+                  std::vector<Entity>& entities, std::vector<Entity>& flowers)
       : map_(map),
         player_(player),
         camera_(camera),
         active_(active),
         in_reserve_(in_reserve),
-        entities_(entities) {
+        entities_(entities),
+        flowers_(flowers) {
     map_.loadFromFile(kMapInfo);
   }
 
@@ -44,26 +46,10 @@ class ExplorationView {
   void setOnCollision(std::function<void(int)> callback) { collision_ = callback; }
 
  private:
-     void initMovingEntities() {
-         entities_.reserve(kMovingEntityAmount);
-         std::uniform_int_distribution<int> dist_x(0, map_.width() - 1);
-         std::uniform_int_distribution<int> dist_y(0, map_.height() - 1);
-         std::mt19937 engine(std::random_device{}());
-         for (int i = 0; i < kMovingEntityAmount; ++i) {
-             while (true) {
-                 int x = dist_x(engine);
-                 int y = dist_y(engine);
-                 if (map_.isWalkable(x, y) && (x != player_.x() || y != player_.y())) {
-                     entities_.push_back({x, y});
-                     break;
-                 }
-             }
-         }
-     }
-
      void moveEntities() {
-         std::uniform_int_distribution<int> dir_dist(0, 3);
-         std::discrete_distribution<int> is_moving({ 75, 25 });
+       std::uniform_int_distribution<int> dir_dist(0, kDirChar.size() - 1);
+       std::discrete_distribution<int> is_moving(
+           {kEntityMoveChance, 100 - kEntityMoveChance});
          std::mt19937 engine(std::random_device{}());
          for (auto& entity : entities_) { 
              if (is_moving(engine)) {
@@ -80,7 +66,7 @@ class ExplorationView {
          }
      }
 
-     int checkCollision() const {
+     int checkEnemyCollision() const {
          for (int i = 0; i < entities_.size(); ++i) {
              if (entities_[i].x == player_.x() &&
                  entities_[i].y == player_.y()) {
@@ -89,6 +75,16 @@ class ExplorationView {
          }
 
          return -1;
+     }
+
+     int checkFlowerCollision() const {
+       for (int i = 0; i < flowers_.size(); ++i) {
+         if (flowers_[i].x == player_.x() && flowers_[i].y == player_.y()) {
+           return i;
+         }
+       }
+
+       return -1;
      }
 
   void buildUI(ScreenInteractive& screen) {
@@ -107,6 +103,7 @@ class ExplorationView {
           int wy = camY + row;
 
           bool is_entity = false;
+          bool is_flower = false;
           for (auto& entity : entities_) {
               if (entity.x == wx && entity.y == wy) {
                   is_entity = true;
@@ -114,11 +111,20 @@ class ExplorationView {
               }
           }
 
+          for (auto& entity : flowers_) {
+            if (entity.x == wx && entity.y == wy) {
+              is_flower = true;
+              break;
+            }
+          }
+
           if (wy >= 0 && wy < map_.height() && wx >= 0 && wx < map_.width()) {
             if (wx == player_.x() && wy == player_.y())
               line[col] = '@';
             else if (is_entity)
               line[col] = 'W';
+            else if (is_flower)
+              line[col] = '*';
             else
               line[col] = map_.at(wx, wy);
           }
@@ -138,9 +144,14 @@ class ExplorationView {
         else {
             int index = std::distance(kDirChar.begin(), it);
             player_.move(kDirX[index], kDirY[index]);
+            int idx = checkFlowerCollision();
+            if (idx != -1) {
+              player_.addFlower();
+              flowers_.erase(flowers_.begin() + idx);
+            }
 
             moveEntities();
-            int idx = checkCollision();
+            idx = checkEnemyCollision();
             if (idx != -1 && collision_) {
                 collision_(idx);
             }
@@ -198,7 +209,8 @@ class ExplorationView {
                  vbox({
                      active_column->Render(),
                      reserve_column->Render(),
-                     selected_animal->Render()
+                     selected_animal->Render(), 
+                     text("healing flowers: " + std::to_string(player_.getFlowers()))
                  }) | size(WIDTH, EQUAL, 21),
              }) |
              border;
@@ -206,6 +218,4 @@ class ExplorationView {
 
     main_component_ = final_renderer | global_handler;
   }
-
-
 };

@@ -1,15 +1,7 @@
 #pragma once
 #include <constants.h>
 
-class IMap {
- public:
-  virtual ~IMap() = default;
-  virtual bool isWalkable(int x, int y) const = 0;
-  virtual int width() const = 0;
-  virtual int height() const = 0;
-};
-
-class Map : public IMap {
+class Map {
   std::vector<std::string> data_;
 
  public:
@@ -30,14 +22,14 @@ class Map : public IMap {
     if (data_.empty()) throw std::runtime_error("Map is empty\n");
   }
 
-  bool isWalkable(int x, int y) const override {
+  bool isWalkable(int x, int y) const {
     if (y < 0 || y >= (data_.size())) return false;
     if (x < 0 || x >= (data_[y].size())) return false;
     return data_[y][x] == '0';
   }
 
-  int width() const override { return data_.empty() ? 0 : data_[0].size(); }
-  int height() const override { return data_.size(); }
+  int width() const { return data_.empty() ? 0 : data_[0].size(); }
+  int height() const { return data_.size(); }
 
   std::pair<int, int> findStart() const {
     for (int y = 1; y < height(); ++y)

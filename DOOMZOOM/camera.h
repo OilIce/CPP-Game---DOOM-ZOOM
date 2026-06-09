@@ -2,11 +2,11 @@
 #include <player.h>
 
 class Camera {
-  const IMap& map_;
+  const Map& map_;
   const Player& player_;
 
  public:
-  Camera(const IMap& map, const Player& player) : map_(map), player_(player) {}
+  Camera(const Map& map, const Player& player) : map_(map), player_(player) {}
 
   std::pair<int, int> getOffset(int view_width, int view_height) const {
     int cam_x = player_.x() - view_width / 2;

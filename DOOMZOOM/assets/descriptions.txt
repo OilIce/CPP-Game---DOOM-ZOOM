@@ -1,0 +1,36 @@
+Increases DEF by 4 for 2 turns.
+Attacks a foe with damage increased by 5.
+Restores 10 HP and increases DEF by 3 for 2 turns for an ally.
+Increases an ally's ATK by 8 for 1 turn.
+Permanently decreases ATK by 2 and increases DEF by 4.
+Permanently decreases DEF by 4 and increases ATK by 2.
+Deals 5 damage to a foe each turn for 3 turns.
+Increases ATK and SPD by 8 for 1 turn.
+Passively restores 5 HP each turn.
+Attacks a foe with damage increased by 8.
+Deals 9 damage to a foe each turn for 2 turns.
+Decreases a foe's DEF by 9 for 2 turns.
+Passively counters attackers with damage equal to ATK plus 1.
+Increases ATK by 6 for 2 turns.
+Attacks a foe with damage decreased by 4, and decreases their SPD by 10 and DEF by 2 for 1 turn.
+Increases DEF by 4 for 2 turns.
+Attacks a foe and decreases their ATK by 5 for 2 turns.
+Increases ATK by 10 for 1 turn.
+Increases DEF by 8 for 1 turn.
+Attacks a foe and decreases their ATK and DEF by 4 for 1 turn.
+Attacks a foe and decreases their DEF by 4 for 3 turns.
+Attacks a foe with damage increased by 12.
+Deals 6 damage to a foe each turn for 5 turns.
+Increases DEF by 4 for 2 turns.
+Passively restores 11 HP each turn.
+Attacks a foe with damage increased by 6, but takes 5 damage.
+Attacks a foe and decreases their DEF by 5 for 2 turns.
+Attacks a foe with damage increased by 5.
+Attacks a foe with damage increased by 5.
+Increases DEF by 10 for 1 turn.
+Attacks a foe with damage increased by 5.
+Permanently increases ATK by 2.
+Attacks all foes.
+Passively restores 8 HP each turn.
+Attacks a foe and decreases their ATK and SPD by 5, and DEF by 3 for 2 turns.
+Increases DEF by 5 for 2 turns.
