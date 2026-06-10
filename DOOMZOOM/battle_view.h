@@ -21,9 +21,10 @@ class BattleView {
   }
 
   bool isOver() const { return current_phase_ == Phase::BattleOver; }
-  bool isVictory() const { 
-    bool enemy_alive = std::any_of(enemy_team_.begin(), enemy_team_.end(), [](auto& a) { return a->isAlive(); });
-    return !enemy_alive; 
+  bool isVictory() const {
+    bool enemy_alive = std::any_of(enemy_team_.begin(), enemy_team_.end(),
+                                   [](auto& a) { return a->isAlive(); });
+    return !enemy_alive;
   }
 
   int getFlowersleft() const { return flowers_; }
@@ -78,12 +79,14 @@ class BattleView {
   }
 
   void removeDead(Team& team) {
-    team.erase(std::remove_if(team.begin(), team.end(), [](auto& a) { return !a->isAlive(); }), team.end());
+    team.erase(std::remove_if(team.begin(), team.end(),
+                              [](auto& a) { return !a->isAlive(); }),
+               team.end());
   }
 
   void nextTurn() {
     int idx = turn_order_[current_turn_idx_];
-    
+
     for (int i = 0; i < turn_order_.size(); ++i) {
       current_turn_idx_ = (current_turn_idx_ + 1) % turn_order_.size();
       idx = turn_order_[current_turn_idx_];
@@ -204,14 +207,18 @@ class BattleView {
     if (action == Action::Heal) action = Action::Defend;
 
     int target = 0;
-    int ability_target = all_fighters_[fighter]->getAbility(action - Action::Ability1).target_type_;
+    int ability_target = all_fighters_[fighter]
+                             ->getAbility(action - Action::Ability1)
+                             .target_type_;
     if (action == Action::Attack && !opp_team->empty() ||
         ((action == Action::Ability1 || action == Action::Ability2) &&
          ability_target == AbilityTarget::Enemy))
-      target = std::uniform_int_distribution<int>(0, opp_team->size() - 1)(engine);
+      target =
+          std::uniform_int_distribution<int>(0, opp_team->size() - 1)(engine);
     else if (((action == Action::Ability1 || action == Action::Ability2) &&
               ability_target == AbilityTarget::Comrade))
-      target = std::uniform_int_distribution<int>(0, my_team->size() - 1)(engine);
+      target =
+          std::uniform_int_distribution<int>(0, my_team->size() - 1)(engine);
 
     executeAction(action, target);
   }
@@ -246,7 +253,9 @@ class BattleView {
         }
         default: {
           int target_type =
-              all_fighters_[fighter]->getAbility(action_menu_index_ - Action::Ability1).target_type_;
+              all_fighters_[fighter]
+                  ->getAbility(action_menu_index_ - Action::Ability1)
+                  .target_type_;
           switch (target_type) {
             case AbilityTarget::Enemy: {
               buildTargetMenu(opp_team);
@@ -295,16 +304,20 @@ class BattleView {
             std::find(player_team_.begin(), player_team_.end(),
                       all_fighters_[idx]) != player_team_.end();
         std::string turn_name = all_fighters_[idx]->name();
-        std::string flowers_left = "healing flowers: " + std::to_string(flowers_);
-        std::string choice_text = (is_players_choice) ? " (your choice)" : " (enemy's choice)";
-        std::string ability1_text = "Ability 1: " + all_fighters_[idx]->getAbility(0).name_ + " - " +
+        std::string flowers_left =
+            "healing flowers: " + std::to_string(flowers_);
+        std::string choice_text =
+            (is_players_choice) ? " (your choice)" : " (enemy's choice)";
+        std::string ability1_text =
+            "Ability 1: " + all_fighters_[idx]->getAbility(0).name_ + " - " +
             all_fighters_[idx]->getAbility(0).description;
-        std::string ability2_text = "Ability 2: " + all_fighters_[idx]->getAbility(1).name_ + " - " +
+        std::string ability2_text =
+            "Ability 2: " + all_fighters_[idx]->getAbility(1).name_ + " - " +
             all_fighters_[idx]->getAbility(1).description;
         action_panel =
             vbox({text("Turn: " + turn_name + choice_text) | bold,
-                  action_menu_->Render(), separator(), text(flowers_left), paragraph(ability1_text),
-                  paragraph(ability2_text)});
+                  action_menu_->Render(), separator(), text(flowers_left),
+                  paragraph(ability1_text), paragraph(ability2_text)});
       } else if (current_phase_ == Phase::ChooseTarget) {
         action_panel =
             vbox({text("Choose target:") | bold, target_menu_->Render()});

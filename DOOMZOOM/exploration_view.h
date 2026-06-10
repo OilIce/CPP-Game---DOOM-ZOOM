@@ -1,34 +1,25 @@
 #pragma once
 
+#include <camera.h>
+#include <inventory.h>
+
 #include <ftxui/component/component.hpp>
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
-#include <camera.h>
-#include <inventory.h>
 
 using namespace ftxui;
 
 struct Entity {
-    int x;
-    int y;
+  int x;
+  int y;
 };
 
 class ExplorationView {
-  Map& map_;
-  Player& player_;
-  Camera& camera_;
-  Inventory& active_;
-  Inventory& in_reserve_;
-
-  Component main_component_;
-  std::vector<Entity>& entities_;
-  std::vector<Entity>& flowers_;
-  std::function<void(int)> collision_;
  public:
-     ExplorationView(Map& map, Player& player, Camera& camera,
-         Inventory& active, Inventory& in_reserve,
-                  std::vector<Entity>& entities, std::vector<Entity>& flowers)
+  ExplorationView(Map& map, Player& player, Camera& camera, Inventory& active,
+                  Inventory& in_reserve, std::vector<Entity>& entities,
+                  std::vector<Entity>& flowers)
       : map_(map),
         player_(player),
         camera_(camera),
@@ -39,53 +30,64 @@ class ExplorationView {
     map_.loadFromFile(kMapInfo);
   }
 
-  Component getComponent(ScreenInteractive& screen) { 
-      buildUI(screen);
-      return main_component_;
+  Component getComponent(ScreenInteractive& screen) {
+    buildUI(screen);
+    return main_component_;
   }
-  void setOnCollision(std::function<void(int)> callback) { collision_ = callback; }
+  void setOnCollision(std::function<void(int)> callback) {
+    collision_ = callback;
+  }
 
  private:
-     void moveEntities() {
-       std::uniform_int_distribution<int> dir_dist(0, kDirChar.size() - 1);
-       std::discrete_distribution<int> is_moving(
-           {kEntityMoveChance, 100 - kEntityMoveChance});
-         std::mt19937 engine(std::random_device{}());
-         for (auto& entity : entities_) { 
-             if (is_moving(engine)) {
-                     int dir = dir_dist(engine);
-                 int new_x = entity.x + kDirX[dir];
-                 int new_y = entity.y + kDirY[dir];
-                 if (map_.isWalkable(new_x, new_y)) {
-                     if (new_x != player_.x() || new_y != player_.y()) {
-                         entity.x = new_x;
-                         entity.y = new_y;
-                     }
-                 }
-             }
-         }
-     }
+  Map& map_;
+  Player& player_;
+  Camera& camera_;
+  Inventory& active_;
+  Inventory& in_reserve_;
 
-     int checkEnemyCollision() const {
-         for (int i = 0; i < entities_.size(); ++i) {
-             if (entities_[i].x == player_.x() &&
-                 entities_[i].y == player_.y()) {
-                 return i;
-             }
-         }
+  Component main_component_;
+  std::vector<Entity>& entities_;
+  std::vector<Entity>& flowers_;
+  std::function<void(int)> collision_;
+  void moveEntities() {
+    std::uniform_int_distribution<int> dir_dist(0, kDirChar.size() - 1);
+    std::discrete_distribution<int> is_moving(
+        {kEntityMoveChance, 100 - kEntityMoveChance});
+    std::mt19937 engine(std::random_device{}());
+    for (auto& entity : entities_) {
+      if (is_moving(engine)) {
+        int dir = dir_dist(engine);
+        int new_x = entity.x + kDirX[dir];
+        int new_y = entity.y + kDirY[dir];
+        if (map_.isWalkable(new_x, new_y)) {
+          if (new_x != player_.x() || new_y != player_.y()) {
+            entity.x = new_x;
+            entity.y = new_y;
+          }
+        }
+      }
+    }
+  }
 
-         return -1;
-     }
+  int checkEnemyCollision() const {
+    for (int i = 0; i < entities_.size(); ++i) {
+      if (entities_[i].x == player_.x() && entities_[i].y == player_.y()) {
+        return i;
+      }
+    }
 
-     int checkFlowerCollision() const {
-       for (int i = 0; i < flowers_.size(); ++i) {
-         if (flowers_[i].x == player_.x() && flowers_[i].y == player_.y()) {
-           return i;
-         }
-       }
+    return -1;
+  }
 
-       return -1;
-     }
+  int checkFlowerCollision() const {
+    for (int i = 0; i < flowers_.size(); ++i) {
+      if (flowers_[i].x == player_.x() && flowers_[i].y == player_.y()) {
+        return i;
+      }
+    }
+
+    return -1;
+  }
 
   void buildUI(ScreenInteractive& screen) {
     auto map_renderer = Renderer([&] {
@@ -105,10 +107,10 @@ class ExplorationView {
           bool is_entity = false;
           bool is_flower = false;
           for (auto& entity : entities_) {
-              if (entity.x == wx && entity.y == wy) {
-                  is_entity = true;
-                  break;
-              }
+            if (entity.x == wx && entity.y == wy) {
+              is_entity = true;
+              break;
+            }
           }
 
           for (auto& entity : flowers_) {
@@ -139,34 +141,36 @@ class ExplorationView {
       if (event.is_character()) {
         char key = std::tolower(event.character()[0]);
 
-        auto it =  std::find(kDirChar.begin(), kDirChar.end(), key);
-        if (it == kDirChar.end()) { return false; } 
-        else {
-            int index = std::distance(kDirChar.begin(), it);
-            player_.move(kDirX[index], kDirY[index]);
-            int idx = checkFlowerCollision();
-            if (idx != -1) {
-              player_.addFlower();
-              flowers_.erase(flowers_.begin() + idx);
-            }
+        auto it = std::find(kDirChar.begin(), kDirChar.end(), key);
+        if (it == kDirChar.end()) {
+          return false;
+        } else {
+          int index = std::distance(kDirChar.begin(), it);
+          player_.move(kDirX[index], kDirY[index]);
+          int idx = checkFlowerCollision();
+          if (idx != -1) {
+            player_.addFlower();
+            flowers_.erase(flowers_.begin() + idx);
+          }
 
-            moveEntities();
-            idx = checkEnemyCollision();
-            if (idx != -1 && collision_) {
-                collision_(idx);
-            }
+          moveEntities();
+          idx = checkEnemyCollision();
+          if (idx != -1 && collision_) {
+            collision_(idx);
+          }
 
-            return true;
+          return true;
         }
       }
 
       return false;
     });
 
-    //команда (пойдёт в бой)
+    // команда (пойдёт в бой)
     MenuOption active_opt;
     active_opt.on_enter = [&] { active_.transferTo(in_reserve_, kTeamMin); };
-    auto active_menu = Menu(&active_.names(), &active_.selectedRef(), active_opt);
+    auto active_menu =
+        Menu(&active_.names(), &active_.selectedRef(), active_opt);
     auto active_column = Renderer(active_menu, [=] {
       return vbox({
           text("On team (max 3)") | bold,
@@ -175,27 +179,29 @@ class ExplorationView {
       });
     });
 
-
-    //вектор резерва
+    // вектор резерва
     MenuOption reserve_opt;
-    reserve_opt.on_enter = [&] { in_reserve_.transferTo(active_, 0, kTeamMax); };
-    auto reserve_menu =  Menu(&in_reserve_.names(), &in_reserve_.selectedRef(), reserve_opt);
+    reserve_opt.on_enter = [&] {
+      in_reserve_.transferTo(active_, 0, kTeamMax);
+    };
+    auto reserve_menu =
+        Menu(&in_reserve_.names(), &in_reserve_.selectedRef(), reserve_opt);
     auto reserve_column = Renderer(reserve_menu, [=] {
       return vbox({
           text("Waiting at zoo") | bold,
           separator(),
-          reserve_menu->Render() | size(HEIGHT, LESS_THAN, 4) | vscroll_indicator | border,
-      }) ;
+          reserve_menu->Render() | size(HEIGHT, LESS_THAN, kInReserveVBoxHeight) | border,
+      });
     });
 
     auto selected_animal = Renderer([=] {
-        return vbox({
-            separator(),
-            paragraph(active_.getDescription()) | bold,
-            separator(),
-            paragraph(in_reserve_.getDescription()) | bold,
-            });
-        });
+      return vbox({
+          separator(),
+          paragraph(active_.getDescription()) | bold,
+          separator(),
+          paragraph(in_reserve_.getDescription()) | bold,
+      });
+    });
 
     auto container = Container::Horizontal({
         map_renderer,
@@ -206,15 +212,14 @@ class ExplorationView {
       return hbox({
                  map_renderer->Render() | flex,
                  separator(),
-                 vbox({
-                     active_column->Render(),
-                     reserve_column->Render(),
-                     selected_animal->Render(), 
-                     text("healing flowers: " + std::to_string(player_.getFlowers()))
-                 }) | size(WIDTH, EQUAL, 21),
+                 vbox({active_column->Render(), reserve_column->Render(),
+                       selected_animal->Render(),
+                       text("healing flowers: " +
+                            std::to_string(player_.getFlowers()))}) |
+                     size(WIDTH, EQUAL, kTeamVBoxWidth),
              }) |
              border;
-    }) ;
+    });
 
     main_component_ = final_renderer | global_handler;
   }

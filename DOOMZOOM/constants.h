@@ -8,8 +8,6 @@
 #include <random>
 
 const int kParamsAmount = 4;
-const int kPlayerBaseX = 50;
-const int kPlayerBaseY = 50;
 const int kTeamMin = 1;
 const int kTeamMax = 3;
 const int kCameraDX = 28;
@@ -19,6 +17,8 @@ const int kHealingEffect = 10;
 const int kDefendingEffect = 5;
 const int kFlowersPerBattle = 3;
 const int kEntityMoveChance = 50;
+const int kInReserveVBoxHeight = 4;
+const int kTeamVBoxWidth = 21;
 
 const int kDirX[] = { 0, 0, -1, 1 };
 const int kDirY[] = { -1, 1, 0, 0 };

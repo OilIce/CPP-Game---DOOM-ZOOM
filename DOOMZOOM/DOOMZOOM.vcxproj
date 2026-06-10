@@ -152,7 +152,6 @@
     <ClCompile Include="inventory.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="player.cpp" />
-    <ClCompile Include="ability.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="animal.h" />
@@ -165,7 +164,6 @@
     <ClInclude Include="inventory.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="player.h" />
-    <ClInclude Include="ability.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

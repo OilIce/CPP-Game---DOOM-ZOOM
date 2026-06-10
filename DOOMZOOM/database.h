@@ -1,15 +1,24 @@
 #pragma once
 
 #include <constants.h>
-#include <ability.h>
 #include <sstream>
-class Database {
- public:
-  struct Entry {
+
+struct Ability {
+  std::string description;
+  std::string name_;
+  int target_type_;
+  std::vector<int> stat_indices;  
+  std::vector<int> magnitudes;
+  std::vector<int> durations;
+};
+
+struct Entry {
     std::string name;
     int stats[STAT_COUNT];
-  };
+};
 
+class Database {
+ public:
   static Database& instance() {
     if (instance_ == nullptr) {
       instance_ = new Database();

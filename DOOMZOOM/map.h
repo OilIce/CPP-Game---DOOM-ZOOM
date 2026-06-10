@@ -2,9 +2,9 @@
 #include <constants.h>
 
 class Map {
-  std::vector<std::string> data_;
-
  public:
+  Map(const std::string& filename) { loadFromFile(filename); }
+
   void loadFromFile(const std::string& filename) {
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -32,8 +32,8 @@ class Map {
   int height() const { return data_.size(); }
 
   std::pair<int, int> findStart() const {
-    for (int y = 1; y < height(); ++y)
-      for (int x = 1; x < width(); ++x)
+    for (int y = height() / 2; y < height(); ++y)
+      for (int x = width() / 2; x < width(); ++x)
         if (data_[y][x] == '0') return {x, y};
     return {0, 0};
   }
@@ -43,4 +43,7 @@ class Map {
       return (data_[y][x] == '1') ? '#' : '?';
     return '.';
   }
+
+private:
+  std::vector<std::string> data_;
 };

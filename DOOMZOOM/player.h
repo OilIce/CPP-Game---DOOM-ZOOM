@@ -3,13 +3,13 @@
 #include <map.h>
 
 class Player {
-  int x_, y_;
-  const Map& map_;
-  int flowers_ = 0;
-
  public:
-  Player(const Map& map, int start_x, int start_y)
-      : x_(start_x), y_(start_y), map_(map) {}
+  Player(const Map& map)
+      : map_(map) { 
+    auto xy_start = map.findStart();
+    x_ = xy_start.first;
+    y_ = xy_start.second;
+  }
 
   int x() const { return x_; }
   int y() const { return y_; }
@@ -29,5 +29,10 @@ class Player {
     }
 
     return false;
-  }
+  } 
+
+private:
+  int x_, y_;
+  const Map& map_;
+  int flowers_ = 0;
 };

@@ -2,9 +2,6 @@
 #include <player.h>
 
 class Camera {
-  const Map& map_;
-  const Player& player_;
-
  public:
   Camera(const Map& map, const Player& player) : map_(map), player_(player) {}
 
@@ -14,5 +11,8 @@ class Camera {
     cam_x = std::clamp(cam_x, 0, std::max(0, map_.width() - view_width));
     cam_y = std::clamp(cam_y, 0, std::max(0, map_.height() - view_height));
     return {cam_x, cam_y};
-  }
+  } 
+private:
+  const Map& map_;
+  const Player& player_;
 };

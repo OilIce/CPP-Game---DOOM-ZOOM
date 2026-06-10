@@ -4,13 +4,12 @@
 class GameManager {
  public:
   explicit GameManager(ScreenInteractive& screen)
-      : map_(),
-        player_(map_, kPlayerBaseY, kPlayerBaseX),
+      : map_(kMapInfo),
+        player_(map_),
         camera_(map_, player_),
         active_({std::make_shared<Animal>(0), std::make_shared<Animal>(1)}),
         in_reserve_({}),
         screen_(screen) {
-    map_.loadFromFile(kMapInfo);
     initEntities();
 
     exploration_ = std::make_unique<ExplorationView>(
@@ -132,7 +131,8 @@ class GameManager {
       next_enemy_idx += 2;
       entities_.erase(entities_.begin() + collision_entity_index_);
     } else {
-      player_.setXY(kPlayerBaseX, kPlayerBaseY);
+      auto xy_start = map_.findStart();
+      player_.setXY(xy_start.first, xy_start.second);
     }
 
     if (entities_.empty()) state_ = State::GameOver;
