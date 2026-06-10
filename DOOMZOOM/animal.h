@@ -41,6 +41,7 @@ class Animal {
       const Ability& ability = database.getAbility(status.ability_idx);
       for (size_t i = 0; i < ability.stat_indices.size(); ++i) {
         if (status.turns_left[i] != 0) {
+          --status.turns_left[i];
           if (ability.stat_indices[i] == HP) {
             if (ability.magnitudes[i] > 0)
               heal(ability.magnitudes[i]);
@@ -62,15 +63,10 @@ class Animal {
     return oss.str();
   }
 
+  void clearStatuses() { statuses_.clear(); }
   void updateStatuses() {
     auto it = statuses_.begin();
     while (it != statuses_.end()) {
-      for (auto& i : it->turns_left) {
-        if (i > 0) {
-          --i;
-        }
-      }
-
       bool is_expired =
           std::all_of(it->turns_left.begin(), it->turns_left.end(),
                       [](int i) { return i == 0; });

@@ -111,7 +111,7 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>C:\Users\User\source\repos\ftxui-6.1.9-win64\include;C:\Users\User\source\repos\DOOMZOOM\DOOMZOOM</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\User\source\repos\ftxui-6.1.9-win64\include;C:\Users\User\Documents\GitHub\CPP-Game---DOOM-ZOOM\DOOMZOOM</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

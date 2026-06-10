@@ -82,9 +82,6 @@ class Database {
       parse_int_list(stats_str, ability.stat_indices);
       parse_int_list(mags_str, ability.magnitudes);
       parse_int_list(durs_str, ability.durations);
-      for (auto& i : ability.durations) {
-        ++i;
-      }
 
       if (ability.stat_indices.size() == ability.magnitudes.size() &&
           ability.magnitudes.size() == ability.durations.size()) {

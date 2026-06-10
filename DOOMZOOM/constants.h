@@ -20,7 +20,6 @@ const int kDefendingEffect = 5;
 const int kFlowersPerBattle = 3;
 const int kEntityMoveChance = 50;
 
-
 const int kDirX[] = { 0, 0, -1, 1 };
 const int kDirY[] = { -1, 1, 0, 0 };
 const std::vector<char> kDirChar = { 'w', 's', 'a', 'd' };

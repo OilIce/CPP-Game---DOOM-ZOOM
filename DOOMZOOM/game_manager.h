@@ -26,11 +26,16 @@ class GameManager {
         return exploration_component->Render();
       else if (state_ == Battle && battle_)
         return battle_->getComponent()->Render();
-      return text("") | center;
+      return text("You Won! Thank you for playing! <3") | center;
     });
 
     main_component_ = main_component_ |
                       CatchEvent([this, exploration_component](Event event) {
+                        if (state_ == State::GameOver) {
+                          screen_.ExitLoopClosure()();
+                          return true;
+                        }
+
                         if (event.is_character() &&
                             std::tolower(event.character()[0]) == 'q') {
                           screen_.ExitLoopClosure()();
@@ -40,9 +45,11 @@ class GameManager {
                         if (state_ == Exploration) {
                           return exploration_component->OnEvent(event);
                         } else if (state_ == Battle && battle_) {
-                          bool handled =
+                            bool handled =
                               battle_->getComponent()->OnEvent(event);
-                          if (battle_->isOver()) {
+                          if (event.is_character() &&
+                              std::tolower(event.character()[0]) == 'e' ||
+                                battle_->isOver()) {
                             endBattle();
                           }
 
@@ -110,9 +117,11 @@ class GameManager {
     bool victory = battle_->isVictory();
     player_.setFlowers(battle_->getFlowersleft());
     battle_.reset();
-    for (auto& a : active_.team()) a->restoreStats();
-    for (auto& a : active_.team()) a->heal();
-    for (auto& a : in_reserve_.team()) a->heal();
+    for (auto& a : active_.team()) {
+      a->clearStatuses();
+      a->restoreStats();
+      a->heal();
+    }
 
     if (victory) {
       Inventory enemy_team({std::make_shared<Animal>(next_enemy_idx),
@@ -126,6 +135,7 @@ class GameManager {
       player_.setXY(kPlayerBaseX, kPlayerBaseY);
     }
 
-    state_ = State::Exploration;
+    if (entities_.empty()) state_ = State::GameOver;
+    else state_ = State::Exploration;
   }
 };

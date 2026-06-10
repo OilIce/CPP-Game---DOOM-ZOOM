@@ -21,7 +21,11 @@ class BattleView {
   }
 
   bool isOver() const { return current_phase_ == Phase::BattleOver; }
-  bool isVictory() const { return enemy_team_.empty(); }
+  bool isVictory() const { 
+    bool enemy_alive = std::any_of(enemy_team_.begin(), enemy_team_.end(), [](auto& a) { return a->isAlive(); });
+    return !enemy_alive; 
+  }
+
   int getFlowersleft() const { return flowers_; }
 
   Component getComponent() { return main_component_; }
@@ -73,18 +77,26 @@ class BattleView {
       current_turn_idx_++;
   }
 
+  void removeDead(Team& team) {
+    team.erase(std::remove_if(team.begin(), team.end(), [](auto& a) { return !a->isAlive(); }), team.end());
+  }
+
   void nextTurn() {
     int idx = turn_order_[current_turn_idx_];
     
     for (int i = 0; i < turn_order_.size(); ++i) {
       current_turn_idx_ = (current_turn_idx_ + 1) % turn_order_.size();
       idx = turn_order_[current_turn_idx_];
+      if (all_fighters_[idx]->isAlive()) {
+        all_fighters_[idx]->modifyStats();
+        all_fighters_[idx]->updateStatuses();
+      }
+
       if (all_fighters_[idx]->isAlive()) break;
     }
 
-    
-    all_fighters_[idx]->modifyStats();
-    all_fighters_[idx]->updateStatuses();
+    removeDead(player_team_);
+    removeDead(enemy_team_);
     current_phase_ = Phase::ChooseAction;
     checkVictory();
   }
@@ -94,12 +106,12 @@ class BattleView {
                                     [](auto& a) { return a->isAlive(); });
     bool enemy_alive = std::any_of(enemy_team_.begin(), enemy_team_.end(),
                                    [](auto& a) { return a->isAlive(); });
-    if (!player_alive) {
-      current_phase_ = Phase::BattleOver;
-      message_ = "Your team has been defeated!";
-    } else if (!enemy_alive) {
+    if (!enemy_alive) {
       current_phase_ = Phase::BattleOver;
       message_ = "You won the battle!";
+    } else if (!player_alive) {
+      current_phase_ = Phase::BattleOver;
+      message_ = "Your team has been defeated!";
     }
   }
 
@@ -169,12 +181,8 @@ class BattleView {
     for (auto& a : all_fighters_)
       if (a != fighter) a->setDefending(false);
 
-    player_team_.erase(std::remove_if(player_team_.begin(), player_team_.end(),
-                                      [](auto& a) { return !a->isAlive(); }),
-                       player_team_.end());
-    enemy_team_.erase(std::remove_if(enemy_team_.begin(), enemy_team_.end(),
-                                     [](auto& a) { return !a->isAlive(); }),
-                      enemy_team_.end());
+    removeDead(player_team_);
+    removeDead(enemy_team_);
 
     buildTurnOrder();
     auto it = std::find(turn_order_.begin(), turn_order_.end(), fighter_idx);
