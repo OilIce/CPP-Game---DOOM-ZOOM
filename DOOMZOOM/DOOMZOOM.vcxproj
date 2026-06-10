@@ -146,7 +146,7 @@
     <ClCompile Include="battle_view.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="database.cpp" />
-    <ClCompile Include="DOOMZOOM.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="exploration_view.cpp" />
     <ClCompile Include="game_manager.cpp" />
     <ClCompile Include="inventory.cpp" />
