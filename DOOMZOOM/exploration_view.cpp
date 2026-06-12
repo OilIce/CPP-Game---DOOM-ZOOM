@@ -45,7 +45,7 @@ int ExplorationView::checkEnemyCollision() const {
     }
   }
 
-  return -1;
+  return kCollisionIdx;
 }
 
 int ExplorationView::checkFlowerCollision() const {
@@ -55,7 +55,7 @@ int ExplorationView::checkFlowerCollision() const {
     }
   }
 
-  return -1;
+  return kCollisionIdx;
 }
 
 void ExplorationView::buildUI(ScreenInteractive& screen) {
@@ -117,14 +117,14 @@ void ExplorationView::buildUI(ScreenInteractive& screen) {
         int index = std::distance(kDirChar.begin(), it);
         player_.move(kDirX[index], kDirY[index]);
         int idx = checkFlowerCollision();
-        if (idx != -1) {
+        if (idx != kCollisionIdx) {
           player_.addFlower();
           flowers_.erase(flowers_.begin() + idx);
         }
 
         moveEntities();
         idx = checkEnemyCollision();
-        if (idx != -1 && collision_) {
+        if (idx != kCollisionIdx && collision_) {
           collision_(idx);
         }
 
@@ -135,7 +135,6 @@ void ExplorationView::buildUI(ScreenInteractive& screen) {
     return false;
   });
 
-  // команда (пойдёт в бой)
   MenuOption active_opt;
   active_opt.on_enter = [&] { active_.transferTo(in_reserve_, kTeamMin); };
   auto active_menu = Menu(&active_.names(), &active_.selectedRef(), active_opt);
@@ -147,7 +146,6 @@ void ExplorationView::buildUI(ScreenInteractive& screen) {
     });
   });
 
-  // вектор резерва
   MenuOption reserve_opt;
   reserve_opt.on_enter = [&] { in_reserve_.transferTo(active_, 0, kTeamMax); };
   auto reserve_menu =

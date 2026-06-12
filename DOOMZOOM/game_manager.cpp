@@ -4,7 +4,7 @@
     : map_(kMapInfo),
       player_(map_),
       camera_(map_, player_),
-      active_({std::make_shared<Animal>(0), std::make_shared<Animal>(1)}),
+      active_({Animal(0), Animal(1)}),
       in_reserve_({}),
       screen_(screen) {
   initEntities();
@@ -79,8 +79,8 @@ void GameManager::startBattle(int entity_index) {
   if (active_.team().empty()) return;
   collision_entity_index_ = entity_index;
 
-  Team enemy_team({std::make_shared<Animal>(next_enemy_idx),
-                   std::make_shared<Animal>(next_enemy_idx + 1)});
+  Team enemy_team({Animal(next_enemy_idx),
+                   Animal(next_enemy_idx + 1)});
 
   Team player_team = active_.team();
 
@@ -94,14 +94,14 @@ void GameManager::endBattle() {
   player_.setFlowers(battle_->getFlowersleft());
   battle_.reset();
   for (auto& a : active_.team()) {
-    a->clearStatuses();
-    a->restoreStats();
-    a->heal();
+    a.clearStatuses();
+    a.restoreStats();
+    a.heal();
   }
 
   if (victory) {
-    Inventory enemy_team({std::make_shared<Animal>(next_enemy_idx),
-                          std::make_shared<Animal>(next_enemy_idx + 1)});
+    Inventory enemy_team({Animal(next_enemy_idx),
+                          Animal(next_enemy_idx + 1)});
     enemy_team.transferTo(in_reserve_);
     enemy_team.transferTo(in_reserve_);
 

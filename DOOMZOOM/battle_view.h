@@ -5,24 +5,23 @@
 #include <ftxui/component/screen_interactive.hpp>
 #include <ftxui/dom/elements.hpp>
 #include <ftxui/screen/screen.hpp>
-#include <numeric>
 #include <random>
 
 using namespace ftxui;
-using Team = std::vector<std::shared_ptr<Animal>>;
+using Team = std::vector<Animal>;
 
 class BattleView {
  public:
   BattleView(Team player, Team enemy, int flowers);
   inline bool isOver() const { return current_phase_ == Phase::BattleOver; }
-  inline bool isVictory() const { return !std::any_of(enemy_team_.begin(), enemy_team_.end(), [](auto& a) { return a->isAlive(); });}
+  inline bool isVictory() const { return !std::any_of(enemy_team_.begin(), enemy_team_.end(), [](auto& a) { return a.isAlive(); });}
   inline int getFlowersleft() const { return flowers_; }
   inline Component getComponent() { return main_component_; }
 
  private:
   Team player_team_;
   Team enemy_team_;
-  Team all_fighters_;
+  std::vector<Animal*> all_fighters_;
   std::vector<bool> is_player_team_;
   std::vector<int> turn_order_;
   int flowers_;

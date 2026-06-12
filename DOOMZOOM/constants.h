@@ -8,6 +8,7 @@
 #include <random>
 
 const int kParamsAmount = 4;
+const int kCollisionIdx = -1;
 const int kTeamMin = 1;
 const int kTeamMax = 3;
 const int kCameraDX = 28;

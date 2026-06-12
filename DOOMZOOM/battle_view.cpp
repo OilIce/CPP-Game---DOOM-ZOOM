@@ -11,16 +11,16 @@ void BattleView::buildTurnOrder() {
   all_fighters_.clear();
   is_player_team_.clear();
   for (auto& a : player_team_) {
-    all_fighters_.push_back(a);
+    all_fighters_.push_back(&a);
     is_player_team_.push_back(true);
   }
   for (auto& a : enemy_team_) {
-    all_fighters_.push_back(a);
+    all_fighters_.push_back(&a);
     is_player_team_.push_back(false);
   }
 
   std::vector<int> indices(all_fighters_.size());
-  std::iota(indices.begin(), indices.end(), 0);
+  for (int i = 0; i < all_fighters_.size(); ++i) indices[i] = i;
   std::sort(indices.begin(), indices.end(), [&](int a, int b) {
     return all_fighters_[a]->spd() > all_fighters_[b]->spd();
   });
@@ -34,19 +34,19 @@ void BattleView::buildTurnOrder() {
 
 void BattleView::removeDead(Team& team) {
   team.erase(std::remove_if(team.begin(), team.end(),
-                            [](auto& a) { return !a->isAlive(); }),
+                            [](auto& a) { return !a.isAlive(); }),
              team.end());
 }
 
 void BattleView::nextTurn() {
   int idx = turn_order_[current_turn_idx_];
-
+  all_fighters_[idx]->updateStatuses();
   for (int i = 0; i < turn_order_.size(); ++i) {
     current_turn_idx_ = (current_turn_idx_ + 1) % turn_order_.size();
     idx = turn_order_[current_turn_idx_];
     if (all_fighters_[idx]->isAlive()) {
       all_fighters_[idx]->modifyStats();
-      all_fighters_[idx]->updateStatuses();
+      all_fighters_[idx]->setDefending(false);
     }
 
     if (all_fighters_[idx]->isAlive()) break;
@@ -60,9 +60,9 @@ void BattleView::nextTurn() {
 
 void BattleView::checkVictory() {
   bool player_alive = std::any_of(player_team_.begin(), player_team_.end(),
-                                  [](auto& a) { return a->isAlive(); });
+                                  [](auto& a) { return a.isAlive(); });
   bool enemy_alive = std::any_of(enemy_team_.begin(), enemy_team_.end(),
-                                 [](auto& a) { return a->isAlive(); });
+                                 [](auto& a) { return a.isAlive(); });
   if (!enemy_alive) {
     current_phase_ = Phase::BattleOver;
     message_ = "You won the battle!";
@@ -84,8 +84,9 @@ void BattleView::executeAction(int action, int target_idx) {
       if (opp_team->empty()) break;
       auto& target = (*opp_team)[target_idx];
       int dmg = fighter->atk();
-      target->takeDamage(dmg);
-      message_ = fighter->name() + " attacks " + target->name() + " for " +
+      target.takeDamage(dmg);
+      target.setDefending(false);
+      message_ = fighter->name() + " attacks " + target.name() + " for " +
                  std::to_string(dmg) + " damage.";
       break;
     }
@@ -94,8 +95,8 @@ void BattleView::executeAction(int action, int target_idx) {
       --flowers_;
       auto& target = (*my_team)[target_idx];
       int heal_amt = kHealingEffect;
-      target->heal(kHealingEffect);
-      message_ = fighter->name() + " heals " + target->name() + " by " +
+      target.heal(kHealingEffect);
+      message_ = fighter->name() + " heals " + target.name() + " by " +
                  std::to_string(heal_amt) + ".";
       break;
     }
@@ -108,9 +109,9 @@ void BattleView::executeAction(int action, int target_idx) {
       int ability_idx = 2 * fighter->getIndex() + action - Action::Ability1;
       switch (ability.target_type_) {
         case AbilityTarget::Enemy:
-          (*opp_team)[target_idx]->addStatus(ability, ability_idx);
+          (*opp_team)[target_idx].addStatus(ability, ability_idx);
           message_ = fighter->name() + " used ability " + ability.name_ +
-                     " on " + (*opp_team)[target_idx]->name();
+                     " on " + (*opp_team)[target_idx].name();
           break;
         case AbilityTarget::Self:
           fighter->addStatus(ability, ability_idx);
@@ -118,13 +119,13 @@ void BattleView::executeAction(int action, int target_idx) {
               fighter->name() + " used ability " + ability.name_ + " on itself";
           break;
         case AbilityTarget::Comrade:
-          (*my_team)[target_idx]->addStatus(ability, ability_idx);
+          (*my_team)[target_idx].addStatus(ability, ability_idx);
           message_ = fighter->name() + " used ability " + ability.name_ +
-                     " on " + (*my_team)[target_idx]->name();
+                     " on " + (*my_team)[target_idx].name();
           break;
         case AbilityTarget::AllEnemies:
           for (auto& animal : *opp_team)
-            animal->addStatus(ability, ability_idx);
+            animal.addStatus(ability, ability_idx);
           message_ = fighter->name() + " used ability " + ability.name_ +
                      " on everyone";
           break;
@@ -133,9 +134,6 @@ void BattleView::executeAction(int action, int target_idx) {
       break;
     }
   }
-
-  for (auto& a : all_fighters_)
-    if (a != fighter) a->setDefending(false);
 
   removeDead(player_team_);
   removeDead(enemy_team_);
@@ -232,10 +230,10 @@ void BattleView::buildUI() {
   auto main_renderer = Renderer([this] {
     Elements p_lines, e_lines;
     p_lines.push_back(text(" Your team ") | bold);
-    for (auto& a : player_team_) p_lines.push_back(text("  " + a->shortInfo()));
+    for (auto& a : player_team_) p_lines.push_back(text("  " + a.shortInfo()));
     if (player_team_.empty()) p_lines.push_back(text("  (empty)"));
     e_lines.push_back(text(" Enemy team ") | bold);
-    for (auto& a : enemy_team_) e_lines.push_back(text("  " + a->shortInfo()));
+    for (auto& a : enemy_team_) e_lines.push_back(text("  " + a.shortInfo()));
     if (enemy_team_.empty()) e_lines.push_back(text("  (empty)"));
 
     auto teams = hbox(
@@ -248,13 +246,12 @@ void BattleView::buildUI() {
       action_panel = text("Press any key to exit.") | center | bold;
     } else if (current_phase_ == Phase::ChooseAction) {
       int idx = turn_order_[current_turn_idx_];
-      bool is_players_choice =
-          std::find(player_team_.begin(), player_team_.end(),
-                    all_fighters_[idx]) != player_team_.end();
       std::string turn_name = all_fighters_[idx]->name();
       std::string flowers_left = "healing flowers: " + std::to_string(flowers_);
-      std::string choice_text =
-          (is_players_choice) ? " (your choice)" : " (enemy's choice)";
+      std::string choice_text = 
+          (is_player_team_[idx])
+                                    ? " (your choice)"
+                                    : " (enemy's choice)";
       std::string ability1_text =
           "Ability 1: " + all_fighters_[idx]->getAbility(0).name_ + " - " +
           all_fighters_[idx]->getAbility(0).description;
@@ -294,7 +291,7 @@ void BattleView::buildUI() {
 
 void BattleView::buildTargetMenu(Team* target_team) {
   target_entries_.clear();
-  for (auto& a : *target_team) target_entries_.push_back(a->shortInfo());
+  for (auto& a : *target_team) target_entries_.push_back(a.shortInfo());
   target_menu_index_ = 0;
   MenuOption opt;
   opt.on_enter = [this]() {

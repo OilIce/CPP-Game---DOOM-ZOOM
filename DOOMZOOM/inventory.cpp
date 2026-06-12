@@ -1,9 +1,9 @@
 #include "Inventory.h"
 
-Inventory::Inventory(std::vector<std::shared_ptr<Animal>> animals)
+Inventory::Inventory(Team animals)
     : team_(std::move(animals)) {
   for (auto animal : team_) {
-    names_.push_back(animal.get()->name());
+    names_.push_back(animal.name());
   }
 }
 
@@ -16,7 +16,7 @@ bool Inventory::transferTo(Inventory& other, int min_limit,
   team_.erase(team_.begin() + selected_);
   names_.erase(names_.begin() + selected_);
   other.team_.push_back(item);
-  other.names_.push_back(item.get()->name());
+  other.names_.push_back(item.name());
   if (selected_ >= team_.size())
     selected_ = std::max(0, static_cast<int>(team_.size()) - 1);
   other.selected_ = other.team_.size() - 1;
