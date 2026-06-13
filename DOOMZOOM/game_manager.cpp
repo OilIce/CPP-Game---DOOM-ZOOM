@@ -6,16 +6,16 @@
       camera_(map_, player_),
       active_({Animal(0), Animal(1)}),
       in_reserve_({}),
-      screen_(screen) {
+      screen_(screen),
+      exploration_(ExplorationView
+          (map_, player_, camera_, active_, in_reserve_, entities_, flowers_)) {
   initEntities();
 
-  exploration_ = std::make_unique<ExplorationView>(
-      map_, player_, camera_, active_, in_reserve_, entities_, flowers_);
-  exploration_->setOnCollision([this](int idx) { startBattle(idx); });
+  exploration_.setOnCollision([this](int idx) { startBattle(idx); });
 }
 
  void GameManager::run() {
-  auto exploration_component = exploration_->getComponent(screen_);
+  auto exploration_component = exploration_.getComponent(screen_);
 
   main_component_ = Renderer([this, exploration_component] {
     if (state_ == Exploration)

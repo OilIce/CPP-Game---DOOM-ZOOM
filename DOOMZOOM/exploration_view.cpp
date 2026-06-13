@@ -64,14 +64,14 @@ void ExplorationView::buildUI(ScreenInteractive& screen) {
     int terminal_h = screen.dimy();
     int view_w = std::max(1, terminal_w - kCameraDX);
     int view_h = std::max(1, terminal_h - kCameraDY);
-    auto [camX, camY] = camera_.getOffset(view_w, view_h);
+    auto [cam_x, cam_y] = camera_.getOffset(view_w, view_h);
 
     Elements rows;
     for (int row = 0; row < view_h; ++row) {
       std::string line(view_w, ' ');
       for (int col = 0; col < view_w; ++col) {
-        int wx = camX + col;
-        int wy = camY + row;
+        int wx = cam_x + col;
+        int wy = cam_y + row;
 
         bool is_entity = false;
         bool is_flower = false;

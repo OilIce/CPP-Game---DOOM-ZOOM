@@ -19,7 +19,7 @@ class GameManager {
   int next_enemy_idx = 2;
   int collision_entity_index_ = -1;
   State state_ = Exploration;
-  std::unique_ptr<ExplorationView> exploration_;
+  ExplorationView exploration_;
   std::unique_ptr<BattleView> battle_;
 
   void endBattle();
