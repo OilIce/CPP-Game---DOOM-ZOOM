@@ -1,7 +1,7 @@
 #include "battle_view.h"
 
-BattleView::BattleView(Team player, Team enemy, int flowers)
-    : player_team_(player), enemy_team_(enemy), flowers_(flowers) {
+BattleView::BattleView(Team& player, Team& enemy, int flowers)
+    : player_team_(std::move(player)), enemy_team_(std::move(enemy)), flowers_(flowers) {
   buildTurnOrder();
   buildUI();
   message_ = "Battle begins!";

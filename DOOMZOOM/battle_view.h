@@ -12,7 +12,7 @@ using Team = std::vector<Animal>;
 
 class BattleView {
  public:
-  BattleView(Team player, Team enemy, int flowers);
+  BattleView(Team& player, Team& enemy, int flowers);
   inline bool isOver() const { return current_phase_ == Phase::BattleOver; }
   inline bool isVictory() const { return !std::any_of(enemy_team_.begin(), enemy_team_.end(), [](auto& a) { return a.isAlive(); });}
   inline int getFlowersleft() const { return flowers_; }

@@ -93,11 +93,6 @@ void GameManager::endBattle() {
   bool victory = battle_->isVictory();
   player_.setFlowers(battle_->getFlowersleft());
   battle_.reset();
-  for (auto& a : active_.team()) {
-    a.clearStatuses();
-    a.restoreStats();
-    a.heal();
-  }
 
   if (victory) {
     Inventory enemy_team({Animal(next_enemy_idx),
